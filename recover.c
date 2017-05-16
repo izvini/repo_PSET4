@@ -89,3 +89,11 @@ int jpgF(block data)
         // found
         return 1;
     }
+
+
+
+
+
+        // not found
+    return 0;
+}
