@@ -71,3 +71,29 @@ int main(int argc, char* argv[])
         fprintf(stderr, "Unsupported file format.\n");
         return 4;
     }
+
+
+
+     // create outputfile's in the BITMAPINFOHEADER
+    BITMAPINFOHEADER bi_resized;
+
+    // change image height, width and size of the image
+    bi_resized.biSize = bi.biSize;
+    bi_resized.biWidth = bi.biWidth * n;
+    bi_resized.biHeight = bi.biHeight * n;
+    bi_resized.biPlanes = bi.biPlanes;
+    bi_resized.biBitCount = bi.biBitCount;
+    bi_resized.biCompression = bi.biCompression;
+
+    // determine padding for scanlines so that it fits the
+    int padding_infile =  (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
+    int padding_resized = (4 - (bi_resized.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
+
+    bi_resized.biSizeImage = (bi_resized.biWidth * sizeof(RGBTRIPLE) + padding_resized) * abs(bi_resized.biHeight);
+    bi_resized.biXPelsPerMeter = bi.biXPelsPerMeter;
+    bi_resized.biYPelsPerMeter = bi.biYPelsPerMeter;
+    bi_resized.biClrUsed = bi.biClrUsed;
+    bi_resized.biClrImportant = bi.biClrImportant;
+
+    // create outfile's BITMAPFILEHEADER
+    BITMAPFILEHEADER bf_resized;
