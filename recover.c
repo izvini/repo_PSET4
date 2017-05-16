@@ -73,3 +73,19 @@ int main(void)
     // success
     return 0;
 }
+
+int jpgF(block data)
+{
+    // check for jpg magic numbers in each block 'data'
+    if (data.array[0] == 0xff && data.array[1] == 0xd8 && data.array[2] == 0xff &&
+        (data.array[3] == 0xe0 || data.array[3] == 0xe1 || data.array[3] == 0xe2
+        || data.array[3] == 0xe3 || data.array[3] == 0xe4 || data.array[3] == 0xe5
+        || data.array[3] == 0xe6 || data.array[3] == 0xe7 || data.array[3] == 0xe8
+        || data.array[3] == 0xe9 || data.array[3] == 0xea || data.array[3] == 0xeb
+        || data.array[3] == 0xec || data.array[3] == 0xed || data.array[3] == 0xee
+        || data.array[3] == 0xef))
+
+    {
+        // found
+        return 1;
+    }
