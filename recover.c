@@ -66,3 +66,10 @@ int main(void)
             fwrite(&data, sizeof(data), 1, output);
         }
     }
+ // close files
+    fclose(input);
+    fclose(output);
+
+    // success
+    return 0;
+}
