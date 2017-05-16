@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
         return 3;
     }
 
-     // read infile's BITMAPFILEHEADER
+    // read infile's BITMAPFILEHEADER
     BITMAPFILEHEADER bf;
     fread(&bf, sizeof(BITMAPFILEHEADER), 1, inptr);
 
@@ -59,7 +59,6 @@ int main(int argc, char* argv[])
         fprintf(stderr, "Unsupported file format.\n");
         return 4;
     }
-
 
     // write outfile's BITMAPFILEHEADER
     fwrite(&bf, sizeof(BITMAPFILEHEADER), 1, outptr);
@@ -84,3 +83,34 @@ int main(int argc, char* argv[])
 
             // if pixel has red part full, change it to white colour
 
+            if (triple.rgbtRed == 0xff && triple.rgbtBlue == 0x00
+                && triple.rgbtGreen == 0x00)
+            {
+                triple.rgbtBlue = 0xff;
+                triple.rgbtGreen = 0xff;
+                triple.rgbtRed = 0xff;
+            }
+
+            // write RGB triple to outfile
+            fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
+        }
+
+        // skip over padding, if any
+        fseek(inptr, padding, SEEK_CUR);
+
+        // then add it back (to demonstrate how)
+        for (int k = 0; k < padding; k++)
+        {
+            fputc(0x00, outptr);
+        }
+    }
+
+    // close infile
+    fclose(inptr);
+
+    // close outfile
+    fclose(outptr);
+
+    // that's all folks
+    return 0;
+}
