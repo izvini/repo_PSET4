@@ -43,8 +43,7 @@ int main(int argc, char* argv[])
         return 2;
     }
 
-
-// open output file
+    // open output file
     FILE* outptr = fopen(outfile, "w");
     if (outptr == NULL)
     {
@@ -57,8 +56,7 @@ int main(int argc, char* argv[])
     BITMAPFILEHEADER bf;
     fread(&bf, sizeof(BITMAPFILEHEADER), 1, inptr);
 
-
-// read infile's BITMAPINFOHEADER
+    // read infile's BITMAPINFOHEADER
     BITMAPINFOHEADER bi;
     fread(&bi, sizeof(BITMAPINFOHEADER), 1, inptr);
 
@@ -72,9 +70,7 @@ int main(int argc, char* argv[])
         return 4;
     }
 
-
-
-     // create outputfile's in the BITMAPINFOHEADER
+    // create outputfile's in the BITMAPINFOHEADER
     BITMAPINFOHEADER bi_resized;
 
     // change image height, width and size of the image
@@ -97,3 +93,67 @@ int main(int argc, char* argv[])
 
     // create outfile's BITMAPFILEHEADER
     BITMAPFILEHEADER bf_resized;
+
+    // change outfile's size and copy other info intact
+    bf_resized.bfType = bf.bfType;
+    bf_resized.bfSize = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + bi_resized.biSizeImage;
+    bf_resized.bfReserved1 = bf.bfReserved1;
+    bf_resized.bfReserved2 = bf.bfReserved2;
+    bf_resized.bfOffBits = bf.bfOffBits;
+
+    // write outfile's BITMAPFILEHEADER
+    fwrite(&bf_resized, sizeof(BITMAPFILEHEADER), 1, outptr);
+
+    // write outfile's BITMAPINFOHEADER
+    fwrite(&bi_resized, sizeof(BITMAPINFOHEADER), 1, outptr);
+
+    // iterate over infile's scanlines
+    for (int k = 0, biHeight = abs(bi.biHeight); k < biHeight; k++)
+    {
+        for(int i = 0; i < n; i++)
+        {
+            // iterate over pixels in scanline to print the image
+            for (int j = 0; j < bi.biWidth; j++)
+            {
+                // temporary storage
+                RGBTRIPLE triple;
+
+                // read RGB triple from infile
+                fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
+
+                // copy each pixel n times in each scanline
+                for(int a = 0; a < n; a++)
+                {
+                    // write RGB triple to outfile
+                    fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
+                }
+            }
+
+            if (i < n - 1)
+            {
+                // take file position indicator back one scanline
+                fseek(inptr, -1 * bi.biWidth * sizeof(RGBTRIPLE), SEEK_CUR);
+            }
+            else
+            {
+                // skip over padding, if any
+                fseek(inptr, padding_infile, SEEK_CUR);
+            }
+
+            // add padding in resized_image
+            for (int r = 0; r < padding_resized; r++)
+            {
+                fputc(0x00, outptr);
+            }
+        }
+    }
+
+    // close infile
+    fclose(inptr);
+
+    // close outfile
+    fclose(outptr);
+
+         // that's all folks
+    return 0;
+}
